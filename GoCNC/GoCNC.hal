@@ -66,9 +66,9 @@ setp hpg.stepgen.01.dirsetup 35000
 setp hpg.stepgen.01.position-scale 66.6666666667
 setp hpg.stepgen.01.maxaccel 40.0
 
-net xpos-cmd axis.1.motor-pos-cmd => hpg.stepgen.01.position-cmd
-net xpos-fb hpg.stepgen.01.position-fb => axis.1.motor-pos-fb
-net xenable axis.1.amp-enable-out => hpg.stepgen.01.enable bb_gpio.p8.out-36
+net ypos-cmd axis.1.motor-pos-cmd => hpg.stepgen.01.position-cmd
+net ypos-fb hpg.stepgen.01.position-fb => axis.1.motor-pos-fb
+net yenable axis.1.amp-enable-out => hpg.stepgen.01.enable bb_gpio.p8.out-36
 
 ## Z-AXIS
 # stepgen parameters
@@ -83,9 +83,9 @@ setp hpg.stepgen.02.dirsetup 35000
 setp hpg.stepgen.02.position-scale 66.6666666667
 setp hpg.stepgen.02.maxaccel 40.0
 
-net xpos-cmd axis.2.motor-pos-cmd => hpg.stepgen.02.position-cmd
-net xpos-fb hpg.stepgen.02.position-fb => axis.2.motor-pos-fb
-net xenable axis.2.amp-enable-out => hpg.stepgen.02.enable bb_gpio.p8.out-34
+net zpos-cmd axis.2.motor-pos-cmd => hpg.stepgen.02.position-cmd
+net zpos-fb hpg.stepgen.02.position-fb => axis.2.motor-pos-fb
+net zenable axis.2.amp-enable-out => hpg.stepgen.02.enable bb_gpio.p8.out-34
 
 ## A-AXIS
 # stepgen parameters
@@ -100,9 +100,9 @@ setp hpg.stepgen.03.dirsetup 35000
 setp hpg.stepgen.03.position-scale 66.6666666667
 setp hpg.stepgen.03.maxaccel 40.0
 
-net xpos-cmd axis.3.motor-pos-cmd => hpg.stepgen.03.position-cmd
-net xpos-fb hpg.stepgen.03.position-fb => axis.3.motor-pos-fb
-net xenable axis.3.amp-enable-out => hpg.stepgen.03.enable bb_gpio.p8.out-32
+net apos-cmd axis.3.motor-pos-cmd => hpg.stepgen.03.position-cmd
+net apos-fb hpg.stepgen.03.position-fb => axis.3.motor-pos-fb
+net aenable axis.3.amp-enable-out => hpg.stepgen.03.enable bb_gpio.p8.out-32
 
 ## EXECUTION
 # determine module function contexts
