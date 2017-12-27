@@ -15,7 +15,7 @@ loadrt trivkins
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD base_thread_fp=0 num_joints=[TRAJ]AXES
 
 # load pogrammable real-time unit dirver
-loadrt hal_pru_generic prucode=/usr/lib/linuxcnc/rt-preempt/pru_generic.bin pru=1 num_stepgens=4 num_encoders=1,4 num_ halname=hpg
+loadrt hal_pru_generic prucode=/usr/lib/linuxcnc/rt-preempt/pru_generic.bin pru=1 num_stepgens=4 num_encoders=4 halname=hpg
 
 # load beaglebone gpio driver
 loadrt hal_bb_gpio output_pins= input_pins=
