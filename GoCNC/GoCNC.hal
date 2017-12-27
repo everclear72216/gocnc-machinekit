@@ -18,7 +18,7 @@ loadrt motmod base_period_nsec=50000 servo_period_nsec=1000000 traj_period_nsec=
 loadrt hal_pru_generic prucode=/usr/lib/linuxcnc/rt-preempt/pru_generic.bin pru=1 num_stepgens=4 num_encoders=4 halname=hpg
 
 # load beaglebone gpio driver
-loadrt hal_bb_gpio output_pins=138 input_pins=122,123,124,125,126,131,133,135,137
+loadrt hal_bb_gpio output_pins=138,136,134,132 input_pins=122,123,124,125,126,131,133,135,137
 
 ## SETUP GPIO POLARITY
 # limit switch polarities
@@ -52,6 +52,57 @@ setp hpg.stepgen.00.maxaccel 40.0
 net xpos-cmd axis.0.motor-pos-cmd => hpg.stepgen.00.position-cmd
 net xpos-fb hpg.stepgen.00.position-fb => axis.0.motor-pos-fb
 net xenable axis.0.amp-enable-out => hpg.stepgen.00.enable bb_gpio.p8.out-38
+
+## Y-AXIS
+# stepgen parameters
+setp hpg.stepgen.01.steppin 104
+setp hpg.stepgen.01.steplen 2000
+setp hpg.stepgen.01.stepspace 2000
+
+setp hpg.stepgen.01.dirpin 105
+setp hpg.stepgen.01.dirhold 35000
+setp hpg.stepgen.01.dirsetup 35000
+
+setp hpg.stepgen.01.position-scale 66.6666666667
+setp hpg.stepgen.01.maxaccel 40.0
+
+net xpos-cmd axis.1.motor-pos-cmd => hpg.stepgen.01.position-cmd
+net xpos-fb hpg.stepgen.01.position-fb => axis.1.motor-pos-fb
+net xenable axis.1.amp-enable-out => hpg.stepgen.01.enable bb_gpio.p8.out-36
+
+## Z-AXIS
+# stepgen parameters
+setp hpg.stepgen.02.steppin 106
+setp hpg.stepgen.02.steplen 2000
+setp hpg.stepgen.02.stepspace 2000
+
+setp hpg.stepgen.02.dirpin 107
+setp hpg.stepgen.02.dirhold 35000
+setp hpg.stepgen.02.dirsetup 35000
+
+setp hpg.stepgen.02.position-scale 66.6666666667
+setp hpg.stepgen.02.maxaccel 40.0
+
+net xpos-cmd axis.2.motor-pos-cmd => hpg.stepgen.02.position-cmd
+net xpos-fb hpg.stepgen.02.position-fb => axis.2.motor-pos-fb
+net xenable axis.2.amp-enable-out => hpg.stepgen.02.enable bb_gpio.p8.out-34
+
+## A-AXIS
+# stepgen parameters
+setp hpg.stepgen.03.steppin 108
+setp hpg.stepgen.03.steplen 2000
+setp hpg.stepgen.03.stepspace 2000
+
+setp hpg.stepgen.03.dirpin 109
+setp hpg.stepgen.03.dirhold 35000
+setp hpg.stepgen.03.dirsetup 35000
+
+setp hpg.stepgen.03.position-scale 66.6666666667
+setp hpg.stepgen.03.maxaccel 40.0
+
+net xpos-cmd axis.3.motor-pos-cmd => hpg.stepgen.03.position-cmd
+net xpos-fb hpg.stepgen.03.position-fb => axis.3.motor-pos-fb
+net xenable axis.3.amp-enable-out => hpg.stepgen.03.enable bb_gpio.p8.out-32
 
 ## EXECUTION
 # determine module function contexts
