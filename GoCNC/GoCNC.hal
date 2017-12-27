@@ -4,18 +4,18 @@ loadusr -w ./setup.sh
 # launch the HAL network daemon
 loadusr -W haltalk
 
+# load trivial kinematics
+loadrt trivkins
+
 ## MOTION CONTROL
 # load the trajectory planner
 loadrt tp
 
-# load trivial kinematics
-loadrt trivkins
-
 # load the motion controller
-loadrt motmod base_period_nsec=50000 servo_period_nsec=1000000 traj_period_nsec=1000000 key=111 num_joints=4 tp=tp kins=trivkins
+loadrt motmod base_period_nsec=110000 servo_period_nsec=1100000 traj_period_nsec=1100000 key=111 num_joints=4 tp=tp kins=trivkins
 
 # load pogrammable real-time unit dirver
-loadrt hal_pru_generic prucode=/usr/lib/linuxcnc/rt-preempt/pru_generic.bin pru=1 num_stepgens=4 num_encoders=4 halname=hpg
+loadrt hal_pru_generic prucode=/usr/lib/linuxcnc/rt-preempt/pru_generic.bin pru=1 num_stepgens=4 halname=hpg
 
 # load beaglebone gpio driver
 loadrt hal_bb_gpio output_pins=838,836,834,832 input_pins=822,823,824,825,826,831,833,835,837
@@ -50,9 +50,9 @@ setp hpg.stepgen.00.position-scale 66.6666666667
 setp hpg.stepgen.00.maxaccel 40.0
 
 net xhome bb_gpio.p8.in-37 => axis.0.home-sw-in
-net xlimit bb_gpio.p8.in-25 => axis.0.pos-lim-sw-in
 net xpos-fb hpg.stepgen.00.position-fb => axis.0.motor-pos-fb
 net xpos-cmd axis.0.motor-pos-cmd => hpg.stepgen.00.position-cmd
+net xlimit bb_gpio.p8.in-25 => axis.0.pos-lim-sw-in axis.0.neg-lim-sw-in
 net xenable axis.0.amp-enable-out => hpg.stepgen.00.enable bb_gpio.p8.out-38
 
 ## Y-AXIS
@@ -69,9 +69,9 @@ setp hpg.stepgen.01.position-scale 66.6666666667
 setp hpg.stepgen.01.maxaccel 40.0
 
 net yhome bb_gpio.p8.in-35 => axis.1.home-sw-in
-net ylimit bb_gpio.p8.in-26 => axis.1.pos-lim-sw-in
 net ypos-fb hpg.stepgen.01.position-fb => axis.1.motor-pos-fb
 net ypos-cmd axis.1.motor-pos-cmd => hpg.stepgen.01.position-cmd
+net ylimit bb_gpio.p8.in-26 => axis.1.pos-lim-sw-in axis.1.neg-lim-sw-in
 net yenable axis.1.amp-enable-out => hpg.stepgen.01.enable bb_gpio.p8.out-36
 
 ## Z-AXIS
@@ -88,9 +88,9 @@ setp hpg.stepgen.02.position-scale 66.6666666667
 setp hpg.stepgen.02.maxaccel 40.0
 
 net zhome bb_gpio.p8.in-33 => axis.2.home-sw-in
-net zlimit bb_gpio.p8.in-23 => axis.2.pos-lim-sw-in
 net zpos-fb hpg.stepgen.02.position-fb => axis.2.motor-pos-fb
 net zpos-cmd axis.2.motor-pos-cmd => hpg.stepgen.02.position-cmd
+net zlimit bb_gpio.p8.in-23 => axis.2.pos-lim-sw-in axis.2.neg-lim-sw-in
 net zenable axis.2.amp-enable-out => hpg.stepgen.02.enable bb_gpio.p8.out-34
 
 ## A-AXIS
@@ -107,9 +107,9 @@ setp hpg.stepgen.03.position-scale 66.6666666667
 setp hpg.stepgen.03.maxaccel 40.0
 
 net ahome bb_gpio.p8.in-31 => axis.3.home-sw-in
-net alimit bb_gpio.p8.in-24 => axis.3.pos-lim-sw-in
 net apos-fb hpg.stepgen.03.position-fb => axis.3.motor-pos-fb
 net apos-cmd axis.3.motor-pos-cmd => hpg.stepgen.03.position-cmd
+net alimit bb_gpio.p8.in-24 => axis.3.pos-lim-sw-in axis.3.neg-lim-sw-in
 net aenable axis.3.amp-enable-out => hpg.stepgen.03.enable bb_gpio.p8.out-32
 
 ## EMERGENCY STOP
