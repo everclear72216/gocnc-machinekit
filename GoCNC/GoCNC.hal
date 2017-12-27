@@ -2,7 +2,7 @@
 loadusr -w ./setup.sh
 
 # launch the HAL network daemon
-#loadusr -W haltalk
+loadusr -W haltalk
 
 ## MOTION CONTROL
 # load the trajectory planner
