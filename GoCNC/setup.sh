@@ -1,4 +1,6 @@
 
+export MACHINEKIT_INI ./GoCNC.ini
+
 sudo $(which config-pin) -f - <<- EOF
 
 	#P8.46	pruout	# X-AXIS DIR
