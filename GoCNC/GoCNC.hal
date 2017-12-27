@@ -1,0 +1,63 @@
+# launch the setup script to perform initial pin configuration
+loadusr -w ./setup.sh
+
+# launch the HAL network daemon
+loadusr -W haltalk
+
+## MOTION CONTROL
+# load the trajectory planner
+loadrt tp
+
+# load trivial kinematics
+loadrt trivkins
+
+# load the motion controller
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD base_thread_fp=0 num_joints=[TRAJ]AXES
+
+# load pogrammable real-time unit dirver
+loadrt hal_pru_generic prucode=/usr/lib/linuxcnc/rt-preempt/pru_generic.bin pru=1 num_stepgens=4 num_encoders=1,4 num_ halname=hpg
+
+# load beaglebone gpio driver
+loadrt hal_bb_gpio output_pins= input_pins=
+
+## SETUP GPIO POLARITY
+# limit switch polarities
+setp bb_gpio.p8.in-23.invert 0 # z axis limit switch
+setp bb_gpio.p8.in-24.invert 0 # a axis limit switch
+setp bb_gpio.p8.in-25.invert 0 # x axis limit switch
+setp bb_gpio.p8.in-26.invert 0 # y axis limit switch
+
+# home switch polarities
+setp bb_gpio.p8.in-31.invert 0 # a axis home switch
+setp bb_gpio.p8.in-33.invert 0 # z axis home switch
+setp bb_gpio.p8.in-35.invert 0 # y axis home switch
+setp bb_gpio.p8.in-37.invert 0 # x axis home switch
+
+# emergency stop polarity
+setp bb_gpio.p8.in-22.invert 0 # emergency stop switch
+
+## X-AXIS
+# stepgen parameters
+setp hpg.stepgen.00.steppin 102
+setp hpg.stepgen.00.steplen 2000
+setp hpg.stepgen.00.stepspace 2000
+
+setp hpg.stepgen.00.dirpin 103
+setp hpg.stepgen.00.dirhold 35000
+setp hpg.stepgen.00.dirsetup 35000
+
+setp hpg.stepgen.00.position-scale [AXIS_0]SCALE
+setp hpg.stepgen.00.maxaccel [AXIS_0]STEPGEN_MAXACCEL
+
+net xpos-cmd axis.0.motor-pos-cmd => hpg.stepgen.00.position-cmd
+net xpos-fb hpg.stepgen.00.position-fb => axis.0.motor-pos-fb
+net xenable axis.0.amp-enable-out => hpg.stepgen.00.enable bb_gpio.p8.out-38
+
+## EXECUTION
+# determine module function contexts
+addf hpg.capture-position servo-thread
+addf bb_gpio_read servo-thread
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+addf hpg.update servo-thread
+addf bb_gpio.write servo-thread
