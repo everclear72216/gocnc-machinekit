@@ -1,5 +1,6 @@
+#! /bin/bash
 
-export MACHINEKIT_INI=./GoCNC.ini
+#export MACHINEKIT_INI=./GoCNC.ini
 
 sudo $(which config-pin) -f - <<- EOF
 
