@@ -1,126 +1,109 @@
-# launch the setup script to perform initial pin configuration
+# make sure the pinout is configured correctly
 loadusr -w ./setup.sh
 
-# launch the HAL network daemon
+# enable remote hal access via the network
 loadusr -W haltalk
 
-# load trivial kinematics
-loadrt trivkins
-
-## MOTION CONTROL
 # load the trajectory planner
 loadrt tp
 
-# load the motion controller
-loadrt motmod base_period_nsec=110000 servo_period_nsec=1100000 traj_period_nsec=1100000 key=111 num_joints=4 tp=tp kins=trivkins
+# load the trivial kinematics package
+loadrt trivkins
 
-# load pogrammable real-time unit dirver
-loadrt hal_pru_generic prucode=/usr/lib/linuxcnc/rt-preempt/pru_generic.bin pru=1 num_stepgens=4 halname=hpg
+# load the motion control module
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]SERVO_PERIOD key=[EMCMOT]SHMEM_KEY num_joints=[TRAJ]AXES tp=tp kins=trivkins
 
-# load beaglebone gpio driver
-loadrt hal_bb_gpio output_pins=838,836,834,832 input_pins=822,823,824,825,826,831,833,835,837
+# load the gpio module
+loadrt hal_bb_gpio output_pins=113,116 input_pins=108,114,115,117,118
 
-## SETUP GPIO POLARITY
-# limit switch polarities
-setp bb_gpio.p8.in-23.invert 0 # z axis limit switch
-setp bb_gpio.p8.in-24.invert 0 # a axis limit switch
-setp bb_gpio.p8.in-25.invert 0 # x axis limit switch
-setp bb_gpio.p8.in-26.invert 0 # y axis limit switch
+# load the real-time gpio module
+loadrt [PRUCONF](DRIVER) prucode=/usr/lib/linuxcnc/rt-preempt/[PRUCONF](PRUBIN) [PRUCONF](CONFIG) halname=hpg
 
-# home switch polarities
-setp bb_gpio.p8.in-31.invert 0 # a axis home switch
-setp bb_gpio.p8.in-33.invert 0 # z axis home switch
-setp bb_gpio.p8.in-35.invert 0 # y axis home switch
-setp bb_gpio.p8.in-37.invert 0 # x axis home switch
+# determine task contexts
+addf hpg.capture-position                 servo-thread
+addf bb_gpio.read                         servo-thread
+addf motion-command-handler               servo-thread
+addf motion-controller                    servo-thread
+addf hpg.update                           servo-thread
+addf bb_gpio.write                        servo-thread
 
-# emergency stop polarity
-setp bb_gpio.p8.in-22.invert 0 # emergency stop switch
+# setup GPIO polarity
+setp bb_gpio.p8.in-08.invert 0
+setp bb_gpio.p8.in-14.invert 0
+setp bb_gpio.p8.in-15.invert 1 
+setp bb_gpio.p8.in-17.invert 0
+setp bb_gpio.p8.in-18.invert 0
 
-## X-AXIS
-# stepgen parameters
-setp hpg.stepgen.00.steppin 102
+# set up the axis parameters and create the axis signals
+# x-axis
+setp hpg.stepgen.00.position-scale [AXIS_0]SCALE
 setp hpg.stepgen.00.steplen 2000
 setp hpg.stepgen.00.stepspace 2000
-
-setp hpg.stepgen.00.dirpin 103
 setp hpg.stepgen.00.dirhold 35000
 setp hpg.stepgen.00.dirsetup 35000
-
-setp hpg.stepgen.00.position-scale 66.6666666667
-setp hpg.stepgen.00.maxaccel 40.0
-
-net xhome bb_gpio.p8.in-37 => axis.0.home-sw-in
-net xpos-fb hpg.stepgen.00.position-fb => axis.0.motor-pos-fb
+setp hpg.stepgen.00.maxaccel [AXIS_0]STEPGEN_MAXACCEL
 net xpos-cmd axis.0.motor-pos-cmd => hpg.stepgen.00.position-cmd
-net xlimit bb_gpio.p8.in-25 => axis.0.pos-lim-sw-in axis.0.neg-lim-sw-in
-net xenable axis.0.amp-enable-out => hpg.stepgen.00.enable bb_gpio.p8.out-38
+net xpos-fb hpg.stepgen.00.position-fb => axis.0.motor-pos-fb
+net xenable axis.0.amp-enable-out => hpg.stepgen.00.enable
 
-## Y-AXIS
-# stepgen parameters
-setp hpg.stepgen.01.steppin 104
+setp hpg.stepgen.00.dirpin 103         
+setp hpg.stepgen.00.steppin 102 
+
+# y-axis
+setp hpg.stepgen.01.position-scale [AXIS_1]SCALE
 setp hpg.stepgen.01.steplen 2000
 setp hpg.stepgen.01.stepspace 2000
-
-setp hpg.stepgen.01.dirpin 105
 setp hpg.stepgen.01.dirhold 35000
 setp hpg.stepgen.01.dirsetup 35000
-
-setp hpg.stepgen.01.position-scale 66.6666666667
-setp hpg.stepgen.01.maxaccel 40.0
-
-net yhome bb_gpio.p8.in-35 => axis.1.home-sw-in
-net ypos-fb hpg.stepgen.01.position-fb => axis.1.motor-pos-fb
+setp hpg.stepgen.01.maxaccel [AXIS_1]STEPGEN_MAXACCEL
 net ypos-cmd axis.1.motor-pos-cmd => hpg.stepgen.01.position-cmd
-net ylimit bb_gpio.p8.in-26 => axis.1.pos-lim-sw-in axis.1.neg-lim-sw-in
-net yenable axis.1.amp-enable-out => hpg.stepgen.01.enable bb_gpio.p8.out-36
+net ypos-fb hpg.stepgen.01.position-fb => axis.1.motor-pos-fb
+net yenable axis.1.amp-enable-out => hpg.stepgen.01.enable
 
-## Z-AXIS
-# stepgen parameters
-setp hpg.stepgen.02.steppin 106
+setp hpg.stepgen.01.dirpin 105 
+setp hpg.stepgen.01.steppin 104 
+
+# z-axis
+setp hpg.stepgen.02.position-scale [AXIS_2]SCALE
 setp hpg.stepgen.02.steplen 2000
 setp hpg.stepgen.02.stepspace 2000
-
-setp hpg.stepgen.02.dirpin 107
 setp hpg.stepgen.02.dirhold 35000
 setp hpg.stepgen.02.dirsetup 35000
-
-setp hpg.stepgen.02.position-scale 66.6666666667
-setp hpg.stepgen.02.maxaccel 40.0
-
-net zhome bb_gpio.p8.in-33 => axis.2.home-sw-in
-net zpos-fb hpg.stepgen.02.position-fb => axis.2.motor-pos-fb
+setp hpg.stepgen.02.maxaccel [AXIS_2]STEPGEN_MAXACCEL
 net zpos-cmd axis.2.motor-pos-cmd => hpg.stepgen.02.position-cmd
-net zlimit bb_gpio.p8.in-23 => axis.2.pos-lim-sw-in axis.2.neg-lim-sw-in
-net zenable axis.2.amp-enable-out => hpg.stepgen.02.enable bb_gpio.p8.out-34
+net zpos-fb hpg.stepgen.02.position-fb => axis.2.motor-pos-fb
+net zenable axis.2.amp-enable-out => hpg.stepgen.02.enable
 
-## A-AXIS
-# stepgen parameters
-setp hpg.stepgen.03.steppin 108
-setp hpg.stepgen.03.steplen 2000
-setp hpg.stepgen.03.stepspace 2000
+setp hpg.stepgen.02.dirpin 107
+setp hpg.stepgen.02.steppin 106 
 
-setp hpg.stepgen.03.dirpin 109
-setp hpg.stepgen.03.dirhold 35000
-setp hpg.stepgen.03.dirsetup 35000
+# debounce the y-axis switches and connect them to signals
+net switches-y1 	<= bb_gpio.p8.in-08
 
-setp hpg.stepgen.03.position-scale 66.6666666667
-setp hpg.stepgen.03.maxaccel 40.0
+# join the home switch signals so that both switches have to be closed to trigger a home position
+net home-y 		=> axis.1.home-sw-in
+net limit-y		=> axis.1.neg-lim-sw-in
 
-net ahome bb_gpio.p8.in-31 => axis.3.home-sw-in
-net apos-fb hpg.stepgen.03.position-fb => axis.3.motor-pos-fb
-net apos-cmd axis.3.motor-pos-cmd => hpg.stepgen.03.position-cmd
-net alimit bb_gpio.p8.in-24 => axis.3.pos-lim-sw-in axis.3.neg-lim-sw-in
-net aenable axis.3.amp-enable-out => hpg.stepgen.03.enable bb_gpio.p8.out-32
+# set up the other home and limit switches
+net switches-x 		<= bb_gpio.p8.in-18
+net switches-x 		=> axis.0.home-sw-in
+net switches-x		=> axis.0.neg-lim-sw-in
+net switches-x		=> axis.0.pos-lim-sw-in
 
-## EMERGENCY STOP
-net estop-ext bb_gpio.p8.in-22 => iocontrol.0.emc-enable-in
+net switches-z 		<= bb_gpio.p8.in-17
+net switches-z 		=> axis.2.home-sw-in
+net switches-z		=> axis.2.pos-lim-sw-in
+
+# connect the spindle control to the relay pin
+net spindle-cw => bb_gpio.p8.out-16
+net spindle-cw <= motion.spindle-forward
+
+# connect the shop vac to the flood coolant signal
+net flood => iocontrol.0.coolant-flood
+net flood => bb_gpio.p8.out-13
+
+# set up the e-stop switch
+net estop-ext <= bb_gpio.p8.in-15
+net estop-ext => iocontrol.0.emc-enable-in
 net estop-out <= iocontrol.0.user-enable-out
 
-## EXECUTION
-# determine module function contexts
-addf hpg.capture-position servo-thread
-addf bb_gpio.read servo-thread
-addf motion-command-handler servo-thread
-addf motion-controller servo-thread
-addf hpg.update servo-thread
-addf bb_gpio.write servo-thread
