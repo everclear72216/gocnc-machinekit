@@ -1,15 +1,25 @@
-# Launch the setup script to make sure hardware setup looks good
+# make sure the gpio configuration is as it should be
 loadusr -w ./setup.sh
+
+# enable remote hal access for Machineface and Cetus
 loadusr -W haltalk
 
-# trajectory planning, kinematics and motion control
+# load the trajectory planner
 loadrt tp
+
+# load the trvial kinematics (each joint represents one axis)
 loadrt trivkins
+
+# load the motion controller
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]SERVO_PERIOD key=[EMCMOT]SHMEM_KEY num_joints=[TRAJ]AXES tp=tp kins=trivkins
 
+# load soft realtime gpio module and select the appropriate pins
 loadrt hal_bb_gpio output_pins=113,116 input_pins=108,114,115,117,118
+
+# load the hard realtime gpio module
 loadrt [PRUCONF](DRIVER) prucode=/usr/lib/linuxcnc/prubin/[PRUCONF](PRUBIN) [PRUCONF](CONFIG) halname=hpg
 
+# determine which module functions run in which context
 addf hpg.capture-position                 servo-thread
 addf bb_gpio.read                         servo-thread
 addf motion-command-handler               servo-thread
